@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+Use App\Note;
+Use App\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +15,23 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// LOGIN
+Route::post('/user', function(Request $request) {
+    // create our user data for the authentication
+    $userdata = array(
+        'email'     => $request->email,
+        'password'  => $request->password
+    );
+    // attempt to do the login
+    if (Auth::attempt($userdata)) {
+        // return redirect()->route('home');
+        return Auth::user()->generateToken();
+    } else {        
+        return "Login Failed";
+    }
 });
+
+// Route::get('/user', function(Request $request) {
+//     dd($request);
+//     return "TEST";
+// });
