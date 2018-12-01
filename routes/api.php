@@ -16,7 +16,7 @@ Use App\User;
 */
 
 // LOGIN
-Route::post('/user', function(Request $request) {
+Route::post('/login', function(Request $request) {
     // create our user data for the authentication
     $userdata = array(
         'email'     => $request->email,
@@ -31,7 +31,25 @@ Route::post('/user', function(Request $request) {
     }
 });
 
-// Route::get('/user', function(Request $request) {
-//     dd($request);
-//     return "TEST";
-// });
+// Get user information
+Route::post('/user', function(Request $request) {
+    if (isset($request->api_token)) {
+        $api_token = $request->api_token;
+        $record = \DB::table('users')->where('api_token', $api_token)->first();
+        if (count($record) > 0) {
+            $user = new stdClass();
+            $user->name = $record->name;
+            $user->email = $record->email;
+            $user->created_at = $record->created_at;
+            $user->updated_at = $record->updated_at;
+            return json_encode($user);
+        }
+        else {
+            return "Access Denied";
+        }
+    }
+    else {
+        return "Access Denied";
+    }
+    return False;
+});
