@@ -53,3 +53,26 @@ Route::post('/user', function(Request $request) {
     }
     return False;
 });
+
+// Get note information
+Route::get('/notes/{id}', function(Request $request, $id) {
+    if (isset($_GET['api_token'])){
+        $api_token = $_GET['api_token'];
+        $user = \DB::table('users')->where('api_token', $api_token)->first();
+        if (count($user) > 0) {
+            $note = \DB::table('notes')->where('user_id', $user->id)->where('id', $id)->first();
+            if (count($note) > 0) {
+                return json_encode($note);
+            }
+            else {
+                return "Access Denied";
+            }
+        }
+        else {
+            return "Access Denied";
+        }
+    }
+    else {
+        return False;
+    }
+});
