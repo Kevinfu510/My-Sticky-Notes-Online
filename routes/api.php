@@ -34,14 +34,19 @@ Route::post('/login', function(Request $request) {
 // Get user information
 Route::post('/user', function(Request $request) {
     if (isset($request->api_token)) {
-        $api_token = $request->api_token;
-        $record = \DB::table('users')->where('api_token', $api_token)->first();
+        $record = \DB::table('users')->where('api_token', $request->api_token)->first();
         if (count($record) > 0) {
             $user = new stdClass();
+            $user->id = $record->id;
             $user->name = $record->name;
             $user->email = $record->email;
             $user->created_at = $record->created_at;
             $user->updated_at = $record->updated_at;
+            $notes = \DB::table('notes')->where('user_id', $record->id)->get();
+            $user_record = User::find($record->id);
+            $shared_notes = $user_record->shared_notes()->get();
+            $user->notes = $notes;
+            $user->shared_notes = $shared_notes;
             return json_encode($user);
         }
         else {
