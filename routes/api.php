@@ -106,3 +106,28 @@ Route::post('/notes/create', function(Request $request) {
         return "FAILED";
     }
 });
+
+// Delete Note
+Route::post('/notes/{id}/delete', function(Request $request, $id) {
+    if (isset($request->api_token)){
+        $api_token = $request->api_token;
+        $user = \DB::table('users')->where('api_token', $api_token)->first();
+        if (count($user) > 0) {
+            $note = \DB::table('notes')->where('id', $id)->where('user_id', $user->id)->first();
+            if (count($note) > 0) {
+                $record = Note::where('id', $id);
+                $record->delete();
+                return "Succesfully Deleted";
+            }
+            else {
+                return "Access Denied";
+            }
+        }
+        else {
+            return "Access Denied";
+        }
+    }
+    else {
+        return "FAILED";
+    }
+});
