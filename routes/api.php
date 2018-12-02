@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 Use App\Note;
 Use App\User;
+use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +32,7 @@ Route::post('/login', function(Request $request) {
     }
 });
 
-// Get user information
+// Get User information
 Route::post('/user', function(Request $request) {
     if (isset($request->api_token)) {
         $record = \DB::table('users')->where('api_token', $request->api_token)->first();
@@ -56,10 +57,10 @@ Route::post('/user', function(Request $request) {
     else {
         return "Access Denied";
     }
-    return False;
+    return "FAILED";
 });
 
-// Get note information
+// Get Note information
 Route::get('/notes/{id}', function(Request $request, $id) {
     if (isset($_GET['api_token'])){
         $api_token = $_GET['api_token'];
@@ -78,6 +79,30 @@ Route::get('/notes/{id}', function(Request $request, $id) {
         }
     }
     else {
-        return False;
+        return "FAILED";
+    }
+});
+
+// Create new Note
+Route::post('/notes/create', function(Request $request) {
+    if (isset($request->api_token)){
+        $api_token = $request->api_token;
+        $user = \DB::table('users')->where('api_token', $api_token)->first();
+        if (count($user) > 0) {
+            $note = new Note;
+            $note->user_id = $user->id;
+            $note->title = $request->name;
+            $note->content = $request->content;
+            $note->date_created = Carbon::now();
+            $note->date_modified = Carbon::now();
+            $note->save();
+            return $note->id;
+        }
+        else {
+            return "Access Denied";
+        }
+    }
+    else {
+        return "FAILED";
     }
 });
