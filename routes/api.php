@@ -131,3 +131,44 @@ Route::post('/notes/{id}/delete', function(Request $request, $id) {
         return "FAILED";
     }
 });
+
+
+// Edit Note
+Route::post('/notes/{id}/update', function(Request $request, $id) {
+    if (isset($request->api_token)){
+        $api_token = $request->api_token;
+        $user = \DB::table('users')->where('api_token', $api_token)->first();
+        if (count($user) > 0) {
+            $note = \DB::table('notes')->where('id', $id)->where('user_id', $user->id)->first();
+            if (count($note) > 0) {
+                $record = Note::where('id', $id);
+                if (isset($request->name)) {
+                    if (strlen($request->name) > 0) {
+                        $record->update(['title'=>$request->name]);
+                    }
+                    else {
+                        return "NAME CANNOT BE EMPTY";
+                    }
+                }
+                if (isset($request->content)) {
+                    if (strlen($request->content) > 0) {
+                        $record->update(['content'=>$request->content]);
+                    }
+                    else {
+                        return "CONTENT CANNOT BE EMPTY";
+                    }
+                }
+                return "Succesfully Updated";
+            }
+            else {
+                return "Access Denied";
+            }
+        }
+        else {
+            return "Access Denied";
+        }
+    }
+    else {
+        return "FAILED";
+    }
+});
